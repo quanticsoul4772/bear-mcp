@@ -1,0 +1,35 @@
+{
+  "name": "@mcp/bear-server",
+  "version": "0.1.0",
+  "description": "MCP server for reading Bear notes - connects to Bear SQLite database in read-only mode",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "bear-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x dist/index.js",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "npm run build && npm start"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "better-sqlite3": "^11.0.0",
+    "chalk": "^5.3.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.0.0",
+    "@types/yargs": "^17.0.32",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
