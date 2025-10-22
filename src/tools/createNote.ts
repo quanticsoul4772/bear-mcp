@@ -56,14 +56,15 @@ export async function handleCreateNote(args: any) {
 
     if (tags) {
       // Handle tags whether they come as string or array
-      // Bear expects tags WITH # prefix, but NOT percent-encoded
+      // Bear expects tags WITHOUT # prefix in the URL parameter
+      // Bear will add the # automatically
       let tagString: string;
       if (Array.isArray(tags)) {
-        tagString = tags.map(tag => tag.startsWith('#') ? tag : `#${tag}`).join(',');
+        tagString = tags.map(tag => tag.startsWith('#') ? tag.substring(1) : tag).join(',');
       } else if (typeof tags === 'string') {
         // Split by comma if multiple tags provided
         const tagArray = tags.split(',').map(t => t.trim());
-        tagString = tagArray.map(tag => tag.startsWith('#') ? tag : `#${tag}`).join(',');
+        tagString = tagArray.map(tag => tag.startsWith('#') ? tag.substring(1) : tag).join(',');
       } else {
         tagString = '';
       }
@@ -77,7 +78,7 @@ export async function handleCreateNote(args: any) {
       params.pin = 'yes';
     }
 
-    const result = await executeBearURLScheme('bear://x-callback-url/create', params, ['tags']);
+    const result = await executeBearURLScheme('bear://x-callback-url/create', params);
 
     if (result.success) {
       return {
