@@ -10,21 +10,12 @@ import chalk from 'chalk';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { BearDB } from './bearDB.js';
-import {
+import { 
   tools,
   handleOpenNote,
   handleSearchNotes,
   handleGetTags,
-  handleOpenTag,
-  handleGetRecentNotes,
-  handleGetPinnedNotes,
-  handleGetNoteStats,
-  handleGetNotesByDateRange,
-  handleCreateNote,
-  handleAddText,
-  handleTrashNote,
-  handleRenameTag,
-  handleDeleteTag
+  handleOpenTag
 } from './tools/index.js';
 
 // Parse command line arguments
@@ -32,7 +23,7 @@ const argv = yargs(hideBin(process.argv))
   .option('db-path', {
     alias: 'd',
     type: 'string',
-    description: 'Path to Bear SQLite database'
+    description: 'Path to Bear SQLite database',
   })
   .help()
   .parseSync();
@@ -41,7 +32,7 @@ const argv = yargs(hideBin(process.argv))
 console.error(chalk.blue(`
 ╭─────────────────────────────╮
 │   Bear MCP Server v0.1.0    │
-│   Bear notes access         │
+│   Read-only Bear access     │
 ╰─────────────────────────────╯
 `));
 
@@ -87,43 +78,16 @@ class BearMCPServer {
         switch (toolName) {
           case "open_note":
             return await handleOpenNote(this.bearDB, args);
-
+          
           case "search_notes":
             return await handleSearchNotes(this.bearDB, args);
-
+          
           case "get_tags":
             return await handleGetTags(this.bearDB);
-
+          
           case "open_tag":
             return await handleOpenTag(this.bearDB, args);
-
-          case "get_recent_notes":
-            return await handleGetRecentNotes(this.bearDB, args);
-
-          case "get_pinned_notes":
-            return await handleGetPinnedNotes(this.bearDB, args);
-
-          case "get_note_stats":
-            return await handleGetNoteStats(this.bearDB, args);
-
-          case "get_notes_by_date":
-            return await handleGetNotesByDateRange(this.bearDB, args);
-
-          case "create_note":
-            return await handleCreateNote(args);
-
-          case "add_text":
-            return await handleAddText(args);
-
-          case "trash_note":
-            return await handleTrashNote(args);
-
-          case "rename_tag":
-            return await handleRenameTag(args);
-
-          case "delete_tag":
-            return await handleDeleteTag(args);
-
+          
           default:
             return {
               content: [{
@@ -162,7 +126,7 @@ class BearMCPServer {
 
 // Main execution
 async function main() {
-  const server = new BearMCPServer(argv['db-path'] as string | undefined);
+  const server = new BearMCPServer(argv.dbPath);
   
   // Handle graceful shutdown
   process.on('SIGINT', () => {

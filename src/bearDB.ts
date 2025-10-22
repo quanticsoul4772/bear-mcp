@@ -5,6 +5,9 @@ import { join } from 'path';
 import chalk from 'chalk';
 import { BearNote, BearTag, SearchOptions, convertCoreDataTimestamp } from './types.js';
 
+// Core Data epoch: January 1, 2001 00:00:00 GMT
+const CORE_DATA_EPOCH = new Date('2001-01-01T00:00:00Z').getTime();
+
 export class BearDB {
   private db: Database.Database;
   private dbPath: string;
@@ -154,6 +157,144 @@ export class BearDB {
 
     const rows = stmt.all(`%#${tag}%`);
     return rows.map(row => this.rowToNote(row));
+  }
+
+  /**
+
+  /**
+   * Get recently modified notes
+   */
+  getRecentNotes(options: { limit: number; includePinned: boolean }): BearNote[] {
+    let query = 'SELECT * FROM ZSFNOTE WHERE ZTRASHED = 0';
+    const params: any[] = [];
+    
+    if (!options.includePinned) {
+      query += ' AND ZPINNED = 0';
+    }
+    
+    query += ' ORDER BY ZMODIFICATIONDATE DESC LIMIT ?';
+    params.push(options.limit);
+    
+    const stmt = this.db.prepare(query);
+    const rows = stmt.all(...params);
+    
+    return rows.map(row => this.rowToNote(row));
+  }
+
+  /**
+   * Get all pinned notes
+   */
+  getPinnedNotes(sortBy: 'modified' | 'created' = 'modified'): BearNote[] {
+    const orderField = sortBy === 'created' ? 'ZCREATIONDATE' : 'ZMODIFICATIONDATE';
+    const stmt = this.db.prepare(`
+      SELECT * FROM ZSFNOTE 
+      WHERE ZTRASHED = 0 AND ZPINNED = 1
+      ORDER BY ${orderField} DESC
+    `);
+    
+    const rows = stmt.all();
+    return rows.map(row => this.rowToNote(row));
+  }
+
+  /**
+   * Get notes by date range
+   */
+  getNotesByDateRange(startDate: Date, endDate: Date, dateType: 'created' | 'modified', limit: number): BearNote[] {
+    const dateField = dateType === 'created' ? 'ZCREATIONDATE' : 'ZMODIFICATIONDATE';
+    
+    // Convert JavaScript dates to Core Data timestamps
+    const startTimestamp = (startDate.getTime() - CORE_DATA_EPOCH) / 1000;
+    const endTimestamp = (endDate.getTime() - CORE_DATA_EPOCH) / 1000;
+    
+    const stmt = this.db.prepare(`
+      SELECT * FROM ZSFNOTE 
+      WHERE ZTRASHED = 0 
+      AND ${dateField} >= ? 
+      AND ${dateField} <= ?
+      ORDER BY ${dateField} DESC
+      LIMIT ?
+    `);
+    
+    const rows = stmt.all(startTimestamp, endTimestamp, limit);
+    return rows.map(row => this.rowToNote(row));
+  }
+
+  /**
+   * Get statistics about the notes database
+   */
+  getNoteStatistics(): any {
+    // Total notes
+    const totalStmt = this.db.prepare('SELECT COUNT(*) as count FROM ZSFNOTE WHERE ZTRASHED = 0');
+    const totalNotes = (totalStmt.get() as any).count;
+    
+    // Pinned notes
+    const pinnedStmt = this.db.prepare('SELECT COUNT(*) as count FROM ZSFNOTE WHERE ZTRASHED = 0 AND ZPINNED = 1');
+    const pinnedNotes = (pinnedStmt.get() as any).count;
+    
+    // Notes with tags
+    const taggedStmt = this.db.prepare(`SELECT COUNT(*) as count FROM ZSFNOTE WHERE ZTRASHED = 0 AND ZTEXT LIKE '%#%'`);
+    const notesWithTags = (taggedStmt.get() as any).count;
+    
+    // Get all tags
+    const allTags = this.getAllTags();
+    const uniqueTags = allTags.length;
+    const topTags = allTags.slice(0, 10);
+    
+    // Average note length
+    const lengthStmt = this.db.prepare('SELECT AVG(LENGTH(ZTEXT)) as avg FROM ZSFNOTE WHERE ZTRASHED = 0');
+    const averageNoteLength = (lengthStmt.get() as any).avg || 0;
+    
+    // Notes created/modified this week and month
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    
+    const weekTimestamp = (weekAgo.getTime() - CORE_DATA_EPOCH) / 1000;
+    const monthTimestamp = (monthAgo.getTime() - CORE_DATA_EPOCH) / 1000;
+    
+    const createdWeekStmt = this.db.prepare('SELECT COUNT(*) as count FROM ZSFNOTE WHERE ZTRASHED = 0 AND ZCREATIONDATE >= ?');
+    const notesCreatedThisWeek = (createdWeekStmt.get(weekTimestamp) as any).count;
+    
+    const modifiedWeekStmt = this.db.prepare('SELECT COUNT(*) as count FROM ZSFNOTE WHERE ZTRASHED = 0 AND ZMODIFICATIONDATE >= ?');
+    const notesModifiedThisWeek = (modifiedWeekStmt.get(weekTimestamp) as any).count;
+    
+    const createdMonthStmt = this.db.prepare('SELECT COUNT(*) as count FROM ZSFNOTE WHERE ZTRASHED = 0 AND ZCREATIONDATE >= ?');
+    const notesCreatedThisMonth = (createdMonthStmt.get(monthTimestamp) as any).count;
+    
+    const modifiedMonthStmt = this.db.prepare('SELECT COUNT(*) as count FROM ZSFNOTE WHERE ZTRASHED = 0 AND ZMODIFICATIONDATE >= ?');
+    const notesModifiedThisMonth = (modifiedMonthStmt.get(monthTimestamp) as any).count;
+    
+    // Note length distribution
+    const lengthDistStmt = this.db.prepare(`
+      SELECT 
+        SUM(CASE WHEN LENGTH(ZTEXT) < 100 THEN 1 ELSE 0 END) as veryShort,
+        SUM(CASE WHEN LENGTH(ZTEXT) >= 100 AND LENGTH(ZTEXT) < 500 THEN 1 ELSE 0 END) as short,
+        SUM(CASE WHEN LENGTH(ZTEXT) >= 500 AND LENGTH(ZTEXT) < 2000 THEN 1 ELSE 0 END) as medium,
+        SUM(CASE WHEN LENGTH(ZTEXT) >= 2000 AND LENGTH(ZTEXT) < 5000 THEN 1 ELSE 0 END) as long,
+        SUM(CASE WHEN LENGTH(ZTEXT) >= 5000 THEN 1 ELSE 0 END) as veryLong
+      FROM ZSFNOTE WHERE ZTRASHED = 0
+    `);
+    const lengthDist = lengthDistStmt.get() as any;
+    
+    return {
+      totalNotes,
+      pinnedNotes,
+      notesWithTags,
+      uniqueTags,
+      topTags,
+      averageNoteLength,
+      notesCreatedThisWeek,
+      notesModifiedThisWeek,
+      notesCreatedThisMonth,
+      notesModifiedThisMonth,
+      noteLengthDistribution: {
+        veryShort: lengthDist.veryShort || 0,
+        short: lengthDist.short || 0,
+        medium: lengthDist.medium || 0,
+        long: lengthDist.long || 0,
+        veryLong: lengthDist.veryLong || 0
+      }
+    };
   }
 
   /**
