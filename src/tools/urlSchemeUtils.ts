@@ -17,22 +17,29 @@ export interface BearURLSchemeResult {
  */
 export async function executeBearURLScheme(
   scheme: string,
-  params: Record<string, string | number | boolean>
+  params: Record<string, string | number | boolean>,
+  skipEncoding: string[] = []
 ): Promise<BearURLSchemeResult> {
   try {
     // Build query string from parameters
     const queryParams = Object.entries(params)
       .filter(([_, value]) => value !== undefined && value !== null)
       .map(([key, value]) => {
-        const encodedValue = encodeURIComponent(String(value));
+        // For certain parameters like 'tags', don't encode to preserve special characters
+        const encodedValue = skipEncoding.includes(key)
+          ? String(value)
+          : encodeURIComponent(String(value));
         return `${key}=${encodedValue}`;
       })
       .join('&');
 
     const fullURL = queryParams ? `${scheme}?${queryParams}` : scheme;
 
+    // Log the URL being sent for debugging
+    console.error('Bear URL:', fullURL);
+
     // Execute the URL scheme using the open command
-    await execAsync(`open "${fullURL}"`);
+    await execAsync(`open "${fullURL.replace(/"/g, '\\"')}"`);
 
     return {
       success: true,
