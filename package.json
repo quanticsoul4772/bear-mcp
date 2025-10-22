@@ -1,7 +1,7 @@
 {
   "name": "@mcp/bear-server",
   "version": "0.1.0",
-  "description": "MCP server for reading Bear notes - connects to Bear SQLite database in read-only mode",
+  "description": "MCP server for Bear notes - connects to Bear SQLite database",
   "license": "MIT",
   "type": "module",
   "bin": {

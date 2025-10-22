@@ -1,15 +1,15 @@
 # Bear MCP Server
 
-A Model Context Protocol (MCP) server that provides read-only access to your Bear notes. This server allows AI assistants like Claude to search and read your Bear notes while ensuring your data remains safe through strict read-only database access.
+A Model Context Protocol (MCP) server that provides access to your Bear notes. This server allows AI assistants like Claude to search and read your Bear notes.
 
 ## Features
 
-- 🔍 **Search notes** by title, content, or tags
-- 📖 **Open specific notes** by title or ID
-- 🏷️ **Browse all tags** with note counts
-- 📑 **View notes by tag** to explore related content
-- 🔒 **Read-only access** ensures your notes are never modified
-- ⚡ **Fast SQLite queries** for instant results
+- Search notes by title, content, or tags
+- Open specific notes by title or ID
+- Browse all tags with note counts
+- View notes by tag to explore related content
+- Read-only database access ensures your notes are never modified
+- Direct SQLite queries for fast results
 
 ## Installation
 
@@ -21,7 +21,7 @@ npm install -g @mcp/bear-server
 ### Option 2: Install from source
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/bear-mcp
+git clone https://github.com/quanticsoul4772/bear-mcp
 cd bear-mcp
 
 # Install dependencies
@@ -85,14 +85,14 @@ If your Bear database is in a non-standard location, you can specify it:
 ### `open_note`
 Open a specific note by its title or unique ID.
 
-**Example usage:**
+Example usage:
 - "Open my note titled 'Project Ideas'"
 - "Show me the note with ID 123ABC-456DEF"
 
 ### `search_notes`
 Search for notes containing specific terms or tags.
 
-**Example usage:**
+Example usage:
 - "Search for notes about machine learning"
 - "Find all notes tagged with #work"
 - "Search for 'API' in notes with tag #documentation"
@@ -100,14 +100,14 @@ Search for notes containing specific terms or tags.
 ### `get_tags`
 List all tags in your Bear notes, organized by frequency.
 
-**Example usage:**
+Example usage:
 - "What tags do I use in Bear?"
 - "Show me all my Bear tags"
 
 ### `open_tag`
 Display all notes that have a specific tag.
 
-**Example usage:**
+Example usage:
 - "Show me all notes tagged #recipes"
 - "List notes with the #meeting tag"
 
@@ -156,10 +156,10 @@ bear-mcp/
 
 This server implements several security measures:
 
-1. **Read-only database access** - The SQLite connection is opened with the `readonly: true` flag
-2. **No write operations** - The server only implements SELECT queries
-3. **Local access only** - Runs via stdio, not network accessible
-4. **Filtered results** - Trashed notes are automatically excluded
+1. Read-only database access - The SQLite connection is opened with the `readonly: true` flag
+2. No write operations - The server only implements SELECT queries
+3. Local access only - Runs via stdio, not network accessible
+4. Filtered results - Trashed notes are automatically excluded
 
 ## Troubleshooting
 
@@ -193,10 +193,10 @@ MIT License - see LICENSE file for details
 
 ## Acknowledgments
 
-- Inspired by the [Bear app](https://bear.app) team for creating an amazing note-taking app
+- Inspired by the [Bear app](https://bear.app) team
 - Thanks to the MCP community for the protocol and SDKs
 - Based on patterns from other MCP server implementations
 
 ## Disclaimer
 
-This server is not affiliated with or endorsed by Bear (Shiny Frog Ltd.). It's an independent tool that provides read-only access to the Bear database.
+This server is not affiliated with or endorsed by Bear (Shiny Frog Ltd.). It's an independent tool that provides access to the Bear database.
