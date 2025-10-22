@@ -118,6 +118,34 @@ Example usage:
 - "Show me all notes tagged #recipes"
 - "List notes with the #meeting tag"
 
+### `get_recent_notes`
+Get recently modified notes.
+
+Example usage:
+- "Show me my 10 most recent notes"
+- "What notes did I modify today?"
+
+### `get_pinned_notes`
+Get all pinned notes.
+
+Example usage:
+- "Show me my pinned notes"
+- "What notes have I pinned?"
+
+### `get_note_stats`
+Get statistics about your Bear notes.
+
+Example usage:
+- "How many notes do I have?"
+- "Show me my Bear notes statistics"
+
+### `get_notes_by_date`
+Get notes within a specific date range.
+
+Example usage:
+- "Show me notes from last week"
+- "Find notes created between January 1 and January 31"
+
 ### `create_note`
 Create a new note in Bear.
 
