@@ -46,8 +46,6 @@ export async function handleRenameTag(args: any) {
     const cleanOldName = oldName.startsWith('#') ? oldName.substring(1) : oldName;
     const cleanNewName = newName.startsWith('#') ? newName.substring(1) : newName;
 
-    console.error(`Renaming tag: "${cleanOldName}" -> "${cleanNewName}"`);
-
     const params = {
       name: cleanOldName,
       new_name: cleanNewName

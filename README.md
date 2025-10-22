@@ -4,11 +4,19 @@ A Model Context Protocol (MCP) server that provides access to your Bear notes. T
 
 ## Features
 
+### Read Operations
 - Search notes by title, content, or tags
 - Open specific notes by title or ID
 - Browse all tags with note counts
 - View notes by tag to explore related content
 - Direct SQLite queries for fast results
+
+### Write Operations
+- Create new notes with tags and pin option
+- Add text to existing notes (append, prepend, or replace)
+- Move notes to trash
+- Rename tags across all notes
+- Delete tags from all notes
 
 ## Installation
 
@@ -109,6 +117,42 @@ Display all notes that have a specific tag.
 Example usage:
 - "Show me all notes tagged #recipes"
 - "List notes with the #meeting tag"
+
+### `create_note`
+Create a new note in Bear.
+
+Example usage:
+- "Create a note titled 'Meeting Notes' with content 'Discussed project timeline'"
+- "Create a note with tags 'work, project' and pin it"
+
+### `add_text`
+Add text to an existing note (append, prepend, or replace).
+
+Example usage:
+- "Append 'Follow-up tasks' to the note with ID 123ABC"
+- "Prepend today's date to my meeting notes"
+- "Replace the content of note 456DEF with new text"
+
+### `trash_note`
+Move a note to trash.
+
+Example usage:
+- "Trash the note with ID 789GHI"
+- "Delete my note titled 'Old Draft'"
+
+### `rename_tag`
+Rename a tag across all notes.
+
+Example usage:
+- "Rename tag 'todo' to 'tasks'"
+- "Change the #work tag to #office"
+
+### `delete_tag`
+Delete a tag from all notes.
+
+Example usage:
+- "Delete the tag 'temporary'"
+- "Remove the #old-project tag from all notes"
 
 ## Development
 

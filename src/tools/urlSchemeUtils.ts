@@ -35,9 +35,6 @@ export async function executeBearURLScheme(
 
     const fullURL = queryParams ? `${scheme}?${queryParams}` : scheme;
 
-    // Log the URL being sent for debugging
-    console.error('Bear URL:', fullURL);
-
     // Execute the URL scheme using the open command
     await execAsync(`open "${fullURL.replace(/"/g, '\\"')}"`);
 
