@@ -8,7 +8,6 @@ A Model Context Protocol (MCP) server that provides access to your Bear notes. T
 - Open specific notes by title or ID
 - Browse all tags with note counts
 - View notes by tag to explore related content
-- Read-only database access ensures your notes are never modified
 - Direct SQLite queries for fast results
 
 ## Installation
@@ -156,10 +155,8 @@ bear-mcp/
 
 This server implements several security measures:
 
-1. Read-only database access - The SQLite connection is opened with the `readonly: true` flag
-2. No write operations - The server only implements SELECT queries
-3. Local access only - Runs via stdio, not network accessible
-4. Filtered results - Trashed notes are automatically excluded
+1. Local access only - Runs via stdio, not network accessible
+2. Filtered results - Trashed notes are automatically excluded
 
 ## Troubleshooting
 
